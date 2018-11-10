@@ -16,6 +16,20 @@ function Iterator(friends, filter) {
 
 const compareNames = (a, b) => a.name.localeCompare(b.name);
 
+function getNextCircle(currentCircle, circles, friends) {
+    const nextCircle = [];
+
+    currentCircle.forEach(_ =>
+        _.friends.forEach(name => {
+            const friend = friends.find(person => person.name === name);
+            if (!circles.includes(friend)) {
+                nextCircle.push(friend);
+            }
+        }));
+
+    return [...new Set(nextCircle)].sort(compareNames);
+}
+
 Iterator.prototype = {
     constructor: Iterator,
     _getCircles(friends, maxLevel = Infinity) {
@@ -24,10 +38,7 @@ Iterator.prototype = {
 
         while (currentCircle.length > 0 && maxLevel > 0) {
             circles.push(...currentCircle);
-            currentCircle = currentCircle.reduce((acc, friend) => acc.concat(friend.friends), [])
-                .map(friendName => friends.find(friend => friend.name === friendName))
-                .filter((friend, i, arr) => !circles.includes(friend) && arr.indexOf(friend) === i)
-                .sort(compareNames);
+            currentCircle = getNextCircle(currentCircle, circles, friends);
             maxLevel--;
         }
 
